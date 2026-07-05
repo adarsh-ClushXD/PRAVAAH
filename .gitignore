@@ -1,0 +1,36 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.env_python/
+
+# Node
+node_modules/
+dist/
+build/
+.npm/
+
+# Database
+*.sqlite
+*.db
+pravaah.db
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Large Data (Optional - prevents 34MB file from bloating repo)
+data/geojson/wb_raw.geojson
+*.geojson
