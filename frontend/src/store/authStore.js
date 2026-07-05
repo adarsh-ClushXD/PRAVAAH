@@ -6,8 +6,8 @@ export const useAuthStore = create((set) => ({
   isLoadingScreen: true,
   
   // Hardcoded Demo Credentials
-  DEMO_USER: 'Admin',
-  DEMO_PASS: 'Clush@232774',
+  DEMO_USER: 'admin',
+  DEMO_PASS: 'admin',
 
   userProfile: null,
 
