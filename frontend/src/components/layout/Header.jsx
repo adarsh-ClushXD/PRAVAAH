@@ -5,7 +5,7 @@ import { useAuthStore } from '../../store/authStore';
 
 export default function Header() {
   const { lastUpdated, syncAllDistricts, isSyncing, syncProgress } = usePravaahStore();
-  const { isAuthenticated, openLoginModal, logout } = useAuthStore();
+  const { isAuthenticated, openLoginModal, logout, userProfile } = useAuthStore();
   
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -77,10 +77,14 @@ export default function Header() {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center space-x-2 px-3 py-1.5 rounded-md hover:bg-navy-800 transition-colors border border-transparent hover:border-navy-700"
             >
-              <div className="w-7 h-7 rounded-full bg-cyan-glow/20 flex items-center justify-center text-sm font-medium text-cyan-glow border border-cyan-glow/30">
-                <User size={14} />
+              <div className="w-7 h-7 rounded-full bg-cyan-glow/20 flex items-center justify-center text-sm font-medium text-cyan-glow border border-cyan-glow/30 overflow-hidden">
+                {userProfile?.picture ? (
+                  <img src={userProfile.picture} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                ) : (
+                  <User size={14} />
+                )}
               </div>
-              <span className="text-sm font-medium text-cyan-glow">Authenticated User</span>
+              <span className="text-sm font-medium text-cyan-glow">{userProfile?.name || 'Authenticated User'}</span>
               <ChevronDown size={16} className="text-cyan-glow/70" />
             </button>
             

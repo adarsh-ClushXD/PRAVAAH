@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { X, Lock, User, Loader2 } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function LoginModal() {
-  const { isLoginModalOpen, closeLoginModal, login } = useAuthStore();
+  const { isLoginModalOpen, closeLoginModal, login, loginWithGoogle } = useAuthStore();
   
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -105,6 +106,30 @@ export default function LoginModal() {
                   'Login'
                 )}
               </button>
+            </div>
+
+            <div className="relative my-4 flex py-1 items-center">
+              <div className="flex-grow border-t border-navy-800"></div>
+              <span className="flex-shrink mx-3 text-xs text-gray-500 uppercase tracking-widest">or</span>
+              <div className="flex-grow border-t border-navy-800"></div>
+            </div>
+
+            <div className="flex justify-center w-full">
+              <GoogleLogin
+                onSuccess={(credentialResponse) => {
+                  try {
+                    loginWithGoogle(credentialResponse.credential);
+                  } catch (err) {
+                    setError(err.message);
+                  }
+                }}
+                onError={() => {
+                  setError("Google sign in failed. Please try again.");
+                }}
+                theme="filled_black"
+                shape="rectangular"
+                width="100%"
+              />
             </div>
             
             <div className="text-center pt-2">

@@ -9,6 +9,8 @@ export const useAuthStore = create((set) => ({
   DEMO_USER: 'Admin',
   DEMO_PASS: 'Clush@232774',
 
+  userProfile: null,
+
   setLoadingScreen: (status) => set({ isLoadingScreen: status }),
   
   openLoginModal: () => set({ isLoginModalOpen: true }),
@@ -20,7 +22,11 @@ export const useAuthStore = create((set) => ({
       // Simulate slight network delay for realism
       setTimeout(() => {
         if (username === 'Admin' && password === 'Clush@232774') {
-          set({ isAuthenticated: true, isLoginModalOpen: false });
+          set({ 
+            isAuthenticated: true, 
+            isLoginModalOpen: false,
+            userProfile: { name: 'Admin Officer', email: 'ddmo.officer@wb.gov.in', picture: null }
+          });
           resolve(true);
         } else {
           reject(new Error("Invalid credentials. Please try again."));
@@ -28,6 +34,32 @@ export const useAuthStore = create((set) => ({
       }, 500);
     });
   },
+
+  loginWithGoogle: (credential) => {
+    try {
+      const base64Url = credential.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+
+      const decoded = JSON.parse(jsonPayload);
+      
+      set({ 
+        isAuthenticated: true, 
+        isLoginModalOpen: false, 
+        userProfile: {
+          name: decoded.name,
+          email: decoded.email,
+          picture: decoded.picture
+        }
+      });
+      return true;
+    } catch (err) {
+      console.error("Google authentication error", err);
+      throw new Error("Failed to process Google profile.");
+    }
+  },
   
-  logout: () => set({ isAuthenticated: false }),
+  logout: () => set({ isAuthenticated: false, userProfile: null }),
 }));
