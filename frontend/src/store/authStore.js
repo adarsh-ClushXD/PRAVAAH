@@ -35,23 +35,15 @@ export const useAuthStore = create((set) => ({
     });
   },
 
-  loginWithGoogle: (credential) => {
+  loginWithGoogle: (profile) => {
     try {
-      const base64Url = credential.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
-
-      const decoded = JSON.parse(jsonPayload);
-      
       set({ 
         isAuthenticated: true, 
         isLoginModalOpen: false, 
         userProfile: {
-          name: decoded.name,
-          email: decoded.email,
-          picture: decoded.picture
+          name: profile.name || 'Adarsh (DDMO Officer)',
+          email: profile.email || 'adarsh.clush@wb.gov.in',
+          picture: profile.picture || null
         }
       });
       return true;
