@@ -95,7 +95,7 @@ VITE_API_URL=http://localhost:8000
 ## 🔒 Demo Credentials
 To login as an Officer and access analysis features:
 *   **Username**: `Admin`
-*   **Password**: `Clush@232774`
+*   **Password**: `admin`
 
 ---
 

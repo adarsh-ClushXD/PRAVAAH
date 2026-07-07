@@ -21,7 +21,7 @@ export const useAuthStore = create((set) => ({
     return new Promise((resolve, reject) => {
       // Simulate slight network delay for realism
       setTimeout(() => {
-        if (username === 'Admin' && password === 'Clush@232774') {
+        if (username.toLowerCase() === 'admin' && password === 'admin') {
           set({ 
             isAuthenticated: true, 
             isLoginModalOpen: false,
