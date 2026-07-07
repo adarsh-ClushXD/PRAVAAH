@@ -31,7 +31,7 @@ async def lifespan(application: FastAPI):
     Shutdown: Release resources gracefully.
     """
     logger.info(f"Starting {settings.app_name} v{settings.app_version}")
-    logger.info(f"Environment: {settings.app_env} | AI Provider: {settings.ai_provider}")
+    logger.info(f"Environment: {settings.app_env} | AI Provider: Gemma API")
 
     # Initialize database schema
     await initialize_database()
@@ -142,7 +142,7 @@ def create_application() -> FastAPI:
             "app": settings.app_name,
             "version": settings.app_version,
             "environment": settings.app_env,
-            "ai_provider": settings.ai_provider,
+            "ai_provider": "gemma_api",
             "ai_provider_healthy": provider_healthy,
         }
 

@@ -39,19 +39,7 @@ class Settings(BaseSettings):
         default="INFO"
     )
 
-    # ── AI Provider ───────────────────────────────────────────────────────────
-    ai_provider: Literal["ollama", "gemma_api"] = Field(
-        default="ollama",
-        description="Active AI provider. Switch without changing business logic.",
-    )
-
-    # Ollama (Development)
-    ollama_base_url: str = Field(default="http://localhost:11434")
-    ollama_model: str = Field(default="gemma4:latest")
-    ollama_timeout_seconds: int = Field(default=180)
-    ollama_max_tokens: int = Field(default=8192)
-
-    # Gemma API (Production)
+    # ── AI Provider (Google Gemma API) ───────────────────────────────────────
     gemma_api_key: str = Field(default="")
     gemma_api_base_url: str = Field(
         default="https://generativelanguage.googleapis.com/v1beta"

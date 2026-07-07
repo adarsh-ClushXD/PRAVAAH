@@ -35,16 +35,6 @@ class AnalysisScheduler:
 
     async def _run_loop(self):
         """The main periodic loop."""
-        # Safeguard: Skip running the scheduler loop on Render (production) if provider is local Ollama
-        from app.config import get_settings
-        settings = get_settings()
-        if settings.app_env == "production" and settings.ai_provider == "ollama":
-            logger.warning(
-                "AnalysisScheduler: Skipping background loop on Render because AI_PROVIDER is set to local 'ollama'. "
-                "Set AI_PROVIDER=gemma_api and provide GEMMA_API_KEY to enable background syncs in the cloud."
-            )
-            return
-
         # Optional: wait a bit before first run to let the server fully boot
         await asyncio.sleep(10)
         
