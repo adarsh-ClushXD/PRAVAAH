@@ -106,11 +106,9 @@ class OllamaProvider(BaseAIProvider):
             },
         }
 
-        # We rely on prompt engineering ("Output ONLY valid JSON") instead of 
-        # Ollama's format="json" because the grammar engine can cause silent 
-        # empty-string failures on resource-constrained local environments.
-        # if json_mode:
-        #     payload["format"] = "json"
+        # Use Ollama's native JSON mode to force valid JSON structure
+        if json_mode:
+            payload["format"] = "json"
 
         try:
             client = self._get_client()
@@ -121,6 +119,13 @@ class OllamaProvider(BaseAIProvider):
             content = data["message"]["content"]
             if not content or not content.strip():
                 raise ValueError("Ollama returned an empty response content")
+                
+            # If json_mode is requested, validate it here so the @retry decorator catches errors!
+            if json_mode:
+                try:
+                    json.loads(content)
+                except json.JSONDecodeError as exc:
+                    raise ValueError(f"Ollama returned invalid JSON: {exc}")
 
             prompt_tokens = data.get("prompt_eval_count", 0)
             completion_tokens = data.get("eval_count", 0)

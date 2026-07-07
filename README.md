@@ -112,3 +112,9 @@ To login as an Officer and access analysis features:
 
 *   **Frontend**: Push your code to GitHub and import it directly into **[Vercel](https://vercel.com/)** or **[Netlify](https://netlify.com/)** (remember to set the `VITE_API_URL` environment variable).
 *   **Backend**: Can be hosted easily on **[Render](https://render.com/)** or **[Railway](https://railway.app/)** with `AI_PROVIDER=gemma_api` and `GEMMA_API_KEY` injected.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

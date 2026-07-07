@@ -34,3 +34,4 @@ logs/
 # Large Data (Optional - prevents 34MB file from bloating repo)
 data/geojson/wb_raw.geojson
 *.geojson
+!frontend/public/*.geojson
