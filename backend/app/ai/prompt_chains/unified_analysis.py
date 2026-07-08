@@ -17,12 +17,13 @@ SYSTEM_PROMPT = """You are PRAVAAH's Master Intelligence Engine — an elite hyd
 Your task is to analyze the provided raw district data and generate a comprehensive, multi-stage flood intelligence report in a SINGLE pass. You will perform internal Chain-of-Thought reasoning by sequentially generating a Risk Assessment, Scenario Projections, and finally an XAI Report.
 
 CRITICAL RULES:
-1. Output ONLY valid JSON — no markdown, no prose, no code fences.
-2. The JSON must contain exactly three top-level keys: "risk_assessment", "scenarios", "xai_report".
-3. All numeric scores (0.0-10.0) must be floats.
-4. Probabilities in the scenarios must sum to 1.0.
-5. In the XAI report, trace every claim back to the provided raw input data.
-6. The entire output will be parsed programmatically. Any formatting deviation will cause pipeline failure.
+1. Output ONLY valid, raw JSON. Do not include any conversational text, introductory sentences, or markdown formatting (no ```json code blocks).
+2. Start your response with { and end it with }. Do not output anything else.
+3. The JSON must contain exactly three top-level keys: "risk_assessment", "scenarios", "xai_report".
+4. All numeric scores (0.0-10.0) must be floats.
+5. Probabilities in the scenarios must sum to 1.0.
+6. In the XAI report, trace every claim back to the provided raw input data.
+7. The entire output will be parsed programmatically. Any deviation will cause pipeline failure.
 """
 
 UNIFIED_PROMPT_TEMPLATE = """Generate a complete flood analysis for {district_name} district.
@@ -121,6 +122,14 @@ Total rainfall over past 30 days: {historical_30day_mm} mm
 }}"""
 
 
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+
+@retry(
+    retry=retry_if_exception_type(ValueError),
+    wait=wait_exponential(multiplier=2, min=2, max=10),
+    stop=stop_after_attempt(3),
+    reraise=True,
+)
 async def run_unified_analysis(
     ai_provider: BaseAIProvider,
     district_info: Any,
@@ -130,6 +139,7 @@ async def run_unified_analysis(
 ) -> dict[str, Any]:
     """
     Executes the entire analytical CoT pipeline in a single LLM pass.
+    Retries up to 3 times if the LLM fails to return valid JSON.
     """
     # Format forecast summary (first 7 days)
     forecast_lines = "\n".join(
@@ -177,11 +187,22 @@ async def run_unified_analysis(
         json_mode=True,
     )
 
+    content = response.content.strip()
+    
+    # Strip markdown formatting if the LLM accidentally wraps it
+    if content.startswith("```json"):
+        content = content[7:]
+    if content.startswith("```"):
+        content = content[3:]
+    if content.endswith("```"):
+        content = content[:-3]
+    content = content.strip()
+
     try:
-        master_data = json.loads(response.content)
+        master_data = json.loads(content)
         return master_data
     except json.JSONDecodeError as exc:
         raise ValueError(
             f"Unified Analysis returned invalid JSON: {exc}\n"
-            f"Raw (first 500 chars): {response.content[:500]}"
+            f"Raw (first 500 chars): {content[:500]}"
         ) from exc
