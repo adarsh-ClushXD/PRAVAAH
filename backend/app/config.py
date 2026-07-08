@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     gemma_api_base_url: str = Field(
         default="https://generativelanguage.googleapis.com/v1beta"
     )
-    gemma_api_model: str = Field(default="gemma-2-27b-it")
+    gemma_api_model: str = Field(default="gemma-4-31b-it")
     gemma_api_timeout_seconds: int = Field(default=120)
 
     # ── Database ──────────────────────────────────────────────────────────────
