@@ -16,7 +16,7 @@ import httpx
 from loguru import logger
 from tenacity import (
     retry,
-    retry_if_exception_type,
+    retry_if_exception,
     stop_after_attempt,
     wait_exponential,
 )
@@ -25,6 +25,16 @@ from app.ai.base_provider import AIMessage, AIProviderError, AIResponse, BaseAIP
 from app.config import get_settings
 
 settings = get_settings()
+
+
+def is_retryable_exception(exc: Exception) -> bool:
+    """Return True if the exception is transient and should trigger a retry."""
+    if isinstance(exc, (httpx.ConnectError, httpx.TimeoutException)):
+        return True
+    if isinstance(exc, httpx.HTTPStatusError):
+        # Retry on Server Errors (5xx status codes)
+        return exc.response.status_code >= 500
+    return False
 
 
 class GemmaAPIProvider(BaseAIProvider):
@@ -87,7 +97,7 @@ class GemmaAPIProvider(BaseAIProvider):
         return contents
 
     @retry(
-        retry=retry_if_exception_type((httpx.ConnectError, httpx.TimeoutException)),
+        retry=retry_if_exception(is_retryable_exception),
         wait=wait_exponential(multiplier=2, min=2, max=30),
         stop=stop_after_attempt(3),
         reraise=True,
@@ -104,7 +114,7 @@ class GemmaAPIProvider(BaseAIProvider):
         return await self.chat(messages, temperature, max_tokens, json_mode)
 
     @retry(
-        retry=retry_if_exception_type((httpx.ConnectError, httpx.TimeoutException)),
+        retry=retry_if_exception(is_retryable_exception),
         wait=wait_exponential(multiplier=2, min=2, max=30),
         stop=stop_after_attempt(3),
         reraise=True,
@@ -153,7 +163,15 @@ class GemmaAPIProvider(BaseAIProvider):
                     provider=self.provider_name,
                 )
 
-            content = candidates[0]["content"]["parts"][0]["text"]
+            parts = candidates[0]["content"]["parts"]
+            # Separate internal thinking/Chain-of-Thought from the actual final response
+            thoughts = [part["text"] for part in parts if part.get("thought")]
+            text_parts = [part["text"] for part in parts if not part.get("thought")]
+
+            if thoughts:
+                logger.debug(f"Gemma API Internal Thought Process:\n{''.join(thoughts)}")
+
+            content = "".join(text_parts)
             usage = data.get("usageMetadata", {})
             prompt_tokens = usage.get("promptTokenCount", 0)
             completion_tokens = usage.get("candidatesTokenCount", 0)
