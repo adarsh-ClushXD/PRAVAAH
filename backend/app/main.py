@@ -41,10 +41,10 @@ async def lifespan(application: FastAPI):
     provider = get_ai_provider()
     is_healthy = await provider.health_check()
     if is_healthy:
-        logger.info(f"AI provider '{settings.ai_provider}' is healthy and ready.")
+        logger.info("Gemma API is healthy and ready.")
     else:
         logger.warning(
-            f"AI provider '{settings.ai_provider}' health check failed. "
+            "Gemma API health check failed. "
             "Analysis endpoints will return degraded responses."
         )
 
